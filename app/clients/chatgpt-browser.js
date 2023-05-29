@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { KeyvFile } = require('keyv-file');
+require("dotenv").config();
+const { KeyvFile } = require("keyv-file");
 
 const browserClient = async ({
   text,
@@ -9,24 +9,31 @@ const browserClient = async ({
   token,
   onProgress,
   abortController,
-  userId
+  userId,
 }) => {
-  const { ChatGPTBrowserClient } = await import('@waylaidwanderer/chatgpt-api');
+  const { ChatGPTBrowserClient } = await import("@waylaidwanderer/chatgpt-api");
+  const filename =
+    process.env.NODE_ENV == "production"
+      ? "/tmp/data/cache.json"
+      : "./data/cache.json";
   const store = {
-    store: new KeyvFile({ filename: './data/cache.json' })
+    store: new KeyvFile({ filename: filename }),
   };
 
   const clientOptions = {
     // Warning: This will expose your access token to a third party. Consider the risks before using this.
     reverseProxyUrl:
-      process.env.CHATGPT_REVERSE_PROXY || 'https://ai.fakeopen.com/api/conversation',
+      process.env.CHATGPT_REVERSE_PROXY ||
+      "https://ai.fakeopen.com/api/conversation",
     // Access token from https://chat.openai.com/api/auth/session
     accessToken:
-      process.env.CHATGPT_TOKEN == 'user_provided' ? token : process.env.CHATGPT_TOKEN ?? null,
+      process.env.CHATGPT_TOKEN == "user_provided"
+        ? token
+        : process.env.CHATGPT_TOKEN ?? null,
     model: model,
     debug: false,
     proxy: process.env.PROXY || null,
-    user: userId
+    user: userId,
   };
 
   const client = new ChatGPTBrowserClient(clientOptions, store);
@@ -36,9 +43,9 @@ const browserClient = async ({
     options = { ...options, parentMessageId, conversationId };
   }
 
-  console.log('gptBrowser clientOptions', clientOptions);
+  console.log("gptBrowser clientOptions", clientOptions);
 
-  if (parentMessageId === '00000000-0000-0000-0000-000000000000') {
+  if (parentMessageId === "00000000-0000-0000-0000-000000000000") {
     delete options.conversationId;
   }
 

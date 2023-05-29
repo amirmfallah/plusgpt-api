@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { KeyvFile } = require('keyv-file');
+require("dotenv").config();
+const { KeyvFile } = require("keyv-file");
 
 const askBing = async ({
   text,
@@ -14,28 +14,34 @@ const askBing = async ({
   invocationId,
   toneStyle,
   token,
-  onProgress
+  onProgress,
 }) => {
-  const { BingAIClient } = await import('@waylaidwanderer/chatgpt-api');
+  const { BingAIClient } = await import("@waylaidwanderer/chatgpt-api");
+  const filename =
+    process.env.NODE_ENV == "production"
+      ? "/tmp/data/cache.json"
+      : "./data/cache.json";
   const store = {
-    store: new KeyvFile({ filename: './data/cache.json' })
+    store: new KeyvFile({ filename: filename }),
   };
 
   const bingAIClient = new BingAIClient({
     // "_U" cookie from bing.com
     userToken:
-      process.env.BINGAI_TOKEN == 'user_provided' ? token : process.env.BINGAI_TOKEN ?? null,
+      process.env.BINGAI_TOKEN == "user_provided"
+        ? token
+        : process.env.BINGAI_TOKEN ?? null,
     // If the above doesn't work, provide all your cookies as a string instead
     // cookies: '',
     debug: false,
     cache: store,
     host: process.env.BINGAI_HOST || null,
-    proxy: process.env.PROXY || null
+    proxy: process.env.PROXY || null,
   });
 
   let options = {};
 
-  if (jailbreakConversationId == 'false') {
+  if (jailbreakConversationId == "false") {
     jailbreakConversationId = false;
   }
 
@@ -46,7 +52,7 @@ const askBing = async ({
       systemMessage,
       parentMessageId,
       toneStyle,
-      onProgress
+      onProgress,
     };
   else {
     options = {
@@ -55,7 +61,7 @@ const askBing = async ({
       systemMessage,
       parentMessageId,
       toneStyle,
-      onProgress
+      onProgress,
     };
 
     // don't give those parameters for new conversation
@@ -67,7 +73,7 @@ const askBing = async ({
     }
   }
 
-  console.log('bing options', options);
+  console.log("bing options", options);
 
   const res = await bingAIClient.sendMessage(text, options);
 

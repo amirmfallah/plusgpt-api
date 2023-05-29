@@ -1,7 +1,7 @@
-require('dotenv').config();
-const { KeyvFile } = require('keyv-file');
-const { genAzureEndpoint } = require('../../utils/genAzureEndpoints');
-const tiktoken = require('@dqbd/tiktoken');
+require("dotenv").config();
+const { KeyvFile } = require("keyv-file");
+const { genAzureEndpoint } = require("../../utils/genAzureEndpoints");
+const tiktoken = require("@dqbd/tiktoken");
 const encoding_for_model = tiktoken.encoding_for_model;
 
 const askClient = async ({
@@ -18,20 +18,25 @@ const askClient = async ({
   frequency_penalty,
   onProgress,
   abortController,
-  userId
+  userId,
 }) => {
-  const { ChatGPTClient } = await import('@waylaidwanderer/chatgpt-api');
+  const { ChatGPTClient } = await import("@waylaidwanderer/chatgpt-api");
+  const filename =
+    process.env.NODE_ENV == "production"
+      ? "/tmp/data/cache.json"
+      : "./data/cache.json";
   const store = {
-    store: new KeyvFile({ filename: './data/cache.json' })
+    store: new KeyvFile({ filename: filename }),
   };
 
   const azure = process.env.AZURE_OPENAI_API_KEY ? true : false;
   if (promptPrefix == null) {
-    promptText = 'You are ChatGPT, a large language model trained by OpenAI.';
+    promptText = "You are ChatGPT, a large language model trained by OpenAI.";
   } else {
     promptText = promptPrefix;
   }
-  const maxContextTokens = model === 'gpt-4' ? 8191 : model === 'gpt-4-32k' ? 32767 : 4095; // 1 less than maximum
+  const maxContextTokens =
+    model === "gpt-4" ? 8191 : model === "gpt-4-32k" ? 32767 : 4095; // 1 less than maximum
   const clientOptions = {
     reverseProxyUrl: process.env.OPENAI_REVERSE_PROXY || null,
     azure,
@@ -41,11 +46,11 @@ const askClient = async ({
       temperature,
       top_p,
       presence_penalty,
-      frequency_penalty
+      frequency_penalty,
     },
     chatGptLabel,
     promptPrefix,
-    proxy: process.env.PROXY || null
+    proxy: process.env.PROXY || null,
     // debug: true
   };
 
@@ -55,8 +60,9 @@ const askClient = async ({
     apiKey = oaiApiKey ? oaiApiKey : process.env.AZURE_OPENAI_API_KEY || null;
     clientOptions.reverseProxyUrl = genAzureEndpoint({
       azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-      azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
-      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION
+      azureOpenAIApiDeploymentName:
+        process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
     });
   }
 
@@ -65,7 +71,9 @@ const askClient = async ({
   const options = {
     onProgress,
     abortController,
-    ...(parentMessageId && conversationId ? { parentMessageId, conversationId } : {})
+    ...(parentMessageId && conversationId
+      ? { parentMessageId, conversationId }
+      : {}),
   };
 
   const enc = encoding_for_model(model);
@@ -82,8 +90,8 @@ const askClient = async ({
     usage: {
       prompt_tokens: prompt_tokens.length,
       completion_tokens: text_tokens.length,
-      total_tokens: prompt_tokens.length + text_tokens.length
-    }
+      total_tokens: prompt_tokens.length + text_tokens.length,
+    },
   };
 
   return newRes;

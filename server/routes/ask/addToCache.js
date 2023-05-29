@@ -1,23 +1,31 @@
-const Keyv = require('keyv');
-const { KeyvFile } = require('keyv-file');
+const Keyv = require("keyv");
+const { KeyvFile } = require("keyv-file");
 
-const addToCache = async ({ endpoint, endpointOption, userMessage, responseMessage }) => {
+const addToCache = async ({
+  endpoint,
+  endpointOption,
+  userMessage,
+  responseMessage,
+}) => {
   try {
-    const conversationsCache = new Keyv({
-      store: new KeyvFile({ filename: './data/cache.json' }),
-      namespace: 'chatgpt' // should be 'bing' for bing/sydney
-    });
+    const filename =
+      process.env.NODE_ENV == "production"
+        ? "/tmp/data/cache.json"
+        : "./data/cache.json";
+    const store = {
+      store: new KeyvFile({ filename: filename }),
+    };
 
     const {
       conversationId,
       messageId: userMessageId,
       parentMessageId: userParentMessageId,
-      text: userText
+      text: userText,
     } = userMessage;
     const {
       messageId: responseMessageId,
       parentMessageId: responseParentMessageId,
-      text: responseText
+      text: responseText,
     } = responseMessage;
 
     let conversation = await conversationsCache.get(conversationId);
@@ -26,38 +34,38 @@ const addToCache = async ({ endpoint, endpointOption, userMessage, responseMessa
     if (!conversation) {
       conversation = {
         messages: [],
-        createdAt: Date.now()
+        createdAt: Date.now(),
       };
       // isNewConversation = true;
     }
 
     const roles = (options) => {
-      if (endpoint === 'openAI') {
-        return options?.chatGptLabel || 'ChatGPT';
-      } else if (endpoint === 'bingAI') {
-        return options?.jailbreak ? 'Sydney' : 'BingAI';
+      if (endpoint === "openAI") {
+        return options?.chatGptLabel || "ChatGPT";
+      } else if (endpoint === "bingAI") {
+        return options?.jailbreak ? "Sydney" : "BingAI";
       }
     };
 
     let _userMessage = {
       id: userMessageId,
       parentMessageId: userParentMessageId,
-      role: 'User',
-      message: userText
+      role: "User",
+      message: userText,
     };
 
     let _responseMessage = {
       id: responseMessageId,
       parentMessageId: responseParentMessageId,
       role: roles(endpointOption),
-      message: responseText
+      message: responseText,
     };
 
     conversation.messages.push(_userMessage, _responseMessage);
 
     await conversationsCache.set(conversationId, conversation);
   } catch (error) {
-    console.error('Trouble adding to cache', error);
+    console.error("Trouble adding to cache", error);
   }
 };
 
