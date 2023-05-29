@@ -1,0 +1,28 @@
+[{
+  "label": "پایه",
+  "amount": 100,
+  "description": "این پکیج به صورت تعداد پرسش ها است",
+  "metadata": null,
+  "price": 100000
+},{
+  "label": "دانشجو",
+  "amount": 100,
+  "description": "این پکیج به صورت تعداد پرسش ها است",
+  "metadata": null,
+  "price": 100000
+},{
+  "label": "حرفه‌ای",
+  "amount": 100,
+  "description": "این پکیج به صورت تعداد پرسش ها است",
+  "metadata": null,
+  "price": 100000
+},{
+  "label": "مجانی",
+  "amount": 5,
+  "description": "این پکیج به صورت تعداد پرسش ها است",
+  "metadata": {
+    "free": true,
+    "activation_allowed": 1
+  },
+  "price": 0
+}]

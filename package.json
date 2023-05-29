@@ -1,0 +1,60 @@
+{
+  "name": "chat-backend",
+  "version": "0.4.6",
+  "description": "",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server-dev": "npx nodemon server/index.js",
+    "deploy": "liara deploy --platform docker --app plusgpt-api --port 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danny-avila/chatgpt-clone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danny-avila/chatgpt-clone/issues"
+  },
+  "homepage": "https://github.com/danny-avila/chatgpt-clone#readme",
+  "dependencies": {
+    "@dqbd/tiktoken": "^1.0.2",
+    "@keyv/mongo": "^2.1.8",
+    "@waylaidwanderer/chatgpt-api": "^1.36.0",
+    "axios": "^1.4.0",
+    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.5.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.36.0",
+    "express": "^4.18.2",
+    "googleapis": "^118.0.0",
+    "handlebars": "^4.7.7",
+    "html": "^1.0.0",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.0",
+    "keyv": "^4.5.2",
+    "keyv-file": "^0.2.0",
+    "lodash": "^4.17.21",
+    "meilisearch": "^0.32.3",
+    "mongoose": "^7.1.1",
+    "nodemailer": "^6.9.1",
+    "openai": "^3.1.0",
+    "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "pino": "^8.12.1",
+    "sanitize": "^2.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "path": "^0.12.7"
+  }
+}
