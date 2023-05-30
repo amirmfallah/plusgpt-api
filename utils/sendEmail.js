@@ -32,7 +32,6 @@ const sendEmail = async (email, subject, payload, template) => {
         html: compiledTemplate(payload),
       };
     };
-    console.log("helooooooo");
     // Send email
     transporter.sendMail(options(), (error, info) => {
       if (error) {
