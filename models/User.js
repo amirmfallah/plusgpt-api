@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
-const DebugControl = require('../utils/debug.js');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Joi = require("joi");
+const DebugControl = require("../utils/debug.js");
 
 function log({ title, parameters }) {
   DebugControl.log.functionName(title);
@@ -12,82 +12,93 @@ function log({ title, parameters }) {
 const Session = mongoose.Schema({
   refreshToken: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
 const userSchema = mongoose.Schema(
   {
     name: {
-      type: String
+      type: String,
     },
     username: {
       type: String,
       lowercase: true,
       required: [true, "can't be blank"],
-      match: [/^[a-zA-Z0-9_]+$/, 'is invalid'],
-      index: true
+      match: [/^[a-zA-Z0-9_]+$/, "is invalid"],
+      index: true,
     },
     email: {
       type: String,
       required: [true, "can't be blank"],
       lowercase: true,
       unique: true,
-      match: [/\S+@\S+\.\S+/, 'is invalid'],
-      index: true
+      match: [/\S+@\S+\.\S+/, "is invalid"],
+      index: true,
     },
     emailVerified: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
+    },
+    phone: {
+      type: String,
+      required: true,
+      match: [/^09\d{9}$/, "is invalid"],
+      index: true,
+    },
+    phoneVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     password: {
       type: String,
       trim: true,
       minlength: 8,
-      maxlength: 60
+      maxlength: 60,
     },
     avatar: {
       type: String,
-      required: false
+      required: false,
     },
     messageCredit: {
       type: Number,
       required: true,
-      default: 0
+      default: 0,
     },
     provider: {
       type: String,
       required: true,
-      default: 'local'
+      default: "local",
     },
     role: {
       type: String,
-      default: 'USER'
+      default: "USER",
     },
     googleId: {
       type: String,
       unique: true,
-      sparse: true
+      sparse: true,
     },
     facebookId: {
       type: String,
       unique: true,
-      sparse: true
+      sparse: true,
     },
     refreshToken: {
-      type: [Session]
-    }
+      type: [Session],
+    },
   },
   { timestamps: true }
 );
 
 //Remove refreshToken from the response
-userSchema.set('toJSON', {
-  transform: function (_doc, ret,) {
+userSchema.set("toJSON", {
+  transform: function (_doc, ret) {
     delete ret.refreshToken;
     return ret;
-  }
+  },
 });
 
 userSchema.methods.toJSON = function () {
@@ -95,18 +106,21 @@ userSchema.methods.toJSON = function () {
     id: this._id,
     provider: this.provider,
     email: this.email,
+    phone: this.phone,
     name: this.name,
     username: this.username,
     avatar: this.avatar,
     role: this.role,
     emailVerified: this.emailVerified,
     createdAt: this.createdAt,
-    updatedAt: this.updatedAt
+    updatedAt: this.updatedAt,
   };
 };
 
-const isProduction = process.env.NODE_ENV === 'production';
-const secretOrKey = isProduction ? process.env.JWT_SECRET_PROD : process.env.JWT_SECRET_DEV;
+const isProduction = process.env.NODE_ENV === "production";
+const secretOrKey = isProduction
+  ? process.env.JWT_SECRET_PROD
+  : process.env.JWT_SECRET_DEV;
 const refreshSecret = isProduction
   ? process.env.REFRESH_TOKEN_SECRET_PROD
   : process.env.REFRESH_TOKEN_SECRET_DEV;
@@ -117,7 +131,8 @@ userSchema.methods.generateToken = function () {
       id: this._id,
       username: this.username,
       provider: this.provider,
-      email: this.email
+      phone: this.phone,
+      email: this.email,
     },
     secretOrKey,
     { expiresIn: eval(process.env.SESSION_EXPIRY) }
@@ -131,7 +146,8 @@ userSchema.methods.generateRefreshToken = function () {
       id: this._id,
       username: this.username,
       provider: this.provider,
-      email: this.email
+      phone: this.phone,
+      email: this.email,
     },
     refreshSecret,
     { expiresIn: eval(process.env.REFRESH_TOKEN_EXPIRY) }
@@ -159,8 +175,8 @@ module.exports.hashPassword = async (password) => {
 
 module.exports.validateUser = (user) => {
   log({
-    title: 'Validate User',
-    parameters: [{ name: 'Validate User', value: user }]
+    title: "Validate User",
+    parameters: [{ name: "Validate User", value: user }],
   });
   const schema = {
     avatar: Joi.any(),
@@ -170,12 +186,12 @@ module.exports.validateUser = (user) => {
       .max(80)
       .regex(/^[a-zA-Z0-9_]+$/)
       .required(),
-    password: Joi.string().min(8).max(60).allow('').allow(null)
+    password: Joi.string().min(8).max(60).allow("").allow(null),
   };
 
   return schema.validate(user);
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

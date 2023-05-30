@@ -1,7 +1,18 @@
-const { getMessages, saveMessage, deleteMessagesSince, deleteMessages } = require('./Message');
-const { getConvoTitle, getConvo, saveConvo } = require('./Conversation');
-const { getPreset, getPresets, savePreset, deletePresets } = require('./Preset');
-const { getSubscription, updateSubscription } = require('./Subscription');
+const {
+  getMessages,
+  saveMessage,
+  deleteMessagesSince,
+  deleteMessages,
+} = require("./Message");
+const { getConvoTitle, getConvo, saveConvo } = require("./Conversation");
+const {
+  getPreset,
+  getPresets,
+  savePreset,
+  deletePresets,
+} = require("./Preset");
+const { getSubscription, updateSubscription } = require("./Subscription");
+const { newOTP, verifyOTP } = require("./OTP");
 
 module.exports = {
   getMessages,
@@ -19,5 +30,8 @@ module.exports = {
   deletePresets,
 
   getSubscription,
-  updateSubscription
+  updateSubscription,
+
+  newOTP,
+  verifyOTP,
 };
