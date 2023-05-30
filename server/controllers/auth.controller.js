@@ -3,25 +3,25 @@ const {
   logoutUser,
   registerUser,
   requestPasswordReset,
-  resetPassword
-} = require('../services/auth.service');
-const { getActiveSubscription } = require('../services/subscription.service');
+  resetPassword,
+} = require("../services/auth.service");
+const { getActiveSubscription } = require("../services/subscription.service");
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 const loginController = async (req, res) => {
   try {
     const token = req.user.generateToken();
     const user = await loginUser(req.user);
     if (user) {
-      res.cookie('token', token, {
+      res.cookie("token", token, {
         expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
         httpOnly: false,
-        secure: isProduction
+        secure: isProduction,
       });
       res.status(200).send({ token, user });
     } else {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
   } catch (err) {
     console.log(err);
@@ -37,8 +37,8 @@ const logoutController = async (req, res) => {
     console.log(logout);
     const { status, message } = logout;
     if (status === 200) {
-      res.clearCookie('token');
-      res.clearCookie('refreshToken');
+      res.clearCookie("token");
+      res.clearCookie("refreshToken");
       res.status(status).send({ message });
     } else {
       res.status(status).send({ message });
@@ -56,10 +56,10 @@ const registrationController = async (req, res) => {
       const { status, user } = response;
       const token = user.generateToken();
       //send token for automatic login
-      res.cookie('token', token, {
+      res.cookie("token", token, {
         expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
         httpOnly: false,
-        secure: isProduction
+        secure: isProduction,
       });
       res.status(status).send({ user });
     } else {
@@ -75,20 +75,19 @@ const registrationController = async (req, res) => {
 const getUserController = async (req, res) => {
   const activePlan = await getActiveSubscription(req.user.id);
   var user = req.user.toJSON();
-  if(activePlan) {
+  if (activePlan) {
     user["plan"] = {
       active: true,
       limit: activePlan.product.amount,
-      used: activePlan.current_usage
-    }
+      used: activePlan.current_usage,
+    };
   } else {
     user["plan"] = {
       active: false,
       limit: 0,
-      used: 0
-    }
+      used: 0,
+    };
   }
-  console.log(user);
   return res.status(200).send(user);
 };
 
@@ -181,5 +180,5 @@ module.exports = {
   refreshController,
   registrationController,
   resetPasswordRequestController,
-  resetPasswordController
+  resetPasswordController,
 };

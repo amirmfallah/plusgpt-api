@@ -1,19 +1,21 @@
-const User = require('../../models/User');
-const Token = require('../../models/schema/tokenSchema');
-const sendEmail = require('../../utils/sendEmail');
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const DebugControl = require('../../utils/debug.js');
-const { registerSchema } = require('../../strategies/validators');
-const migrateDataToFirstUser = require('../../utils/migrateDataToFirstUser');
+const User = require("../../models/User");
+const Token = require("../../models/schema/tokenSchema");
+const sendEmail = require("../../utils/sendEmail");
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const DebugControl = require("../../utils/debug.js");
+const { registerSchema } = require("../../strategies/validators");
+const migrateDataToFirstUser = require("../../utils/migrateDataToFirstUser");
 
 function log({ title, parameters }) {
   DebugControl.log.functionName(title);
   DebugControl.log.parameters(parameters);
 }
 
-const isProduction = process.env.NODE_ENV === 'production';
-const clientUrl = isProduction ? process.env.CLIENT_URL_PROD : process.env.CLIENT_URL_DEV;
+const isProduction = process.env.NODE_ENV === "production";
+const clientUrl = isProduction
+  ? process.env.CLIENT_URL_PROD
+  : process.env.CLIENT_URL_DEV;
 
 const loginUser = async (user) => {
   // const refreshToken = req.user.generateRefreshToken();
@@ -26,31 +28,35 @@ const loginUser = async (user) => {
 const logoutUser = async (user, refreshToken) => {
   try {
     const userFound = await User.findById(user._id);
-    const tokenIndex = userFound.refreshToken.findIndex((item) => item.refreshToken === refreshToken);
+    const tokenIndex = userFound.refreshToken.findIndex(
+      (item) => item.refreshToken === refreshToken
+    );
 
     if (tokenIndex !== -1) {
-      userFound.refreshToken.id(userFound.refreshToken[tokenIndex]._id).remove();
+      userFound.refreshToken
+        .id(userFound.refreshToken[tokenIndex]._id)
+        .remove();
     }
 
     await userFound.save();
     //res.clearCookie('refreshToken', COOKIE_OPTIONS);
     // removeTokenCookie(res);
-    return { status: 200, message: 'Logout successful' };
+    return { status: 200, message: "Logout successful" };
   } catch (err) {
     return { status: 500, message: err.message };
   }
-}
+};
 
 const registerUser = async (user) => {
   let response = {};
   const { error } = registerSchema.validate(user);
   if (error) {
     log({
-      title: 'Route: register - Joi Validation Error',
+      title: "Route: register - Joi Validation Error",
       parameters: [
-        { name: 'Request params:', value: user },
-        { name: 'Validation error:', value: error.details }
-      ]
+        { name: "Request params:", value: user },
+        { name: "Validation error:", value: error.details },
+      ],
     });
     response = { status: 422, message: error.details[0].message };
     return response;
@@ -63,13 +69,13 @@ const registerUser = async (user) => {
 
     if (existingUser) {
       log({
-        title: 'Register User - Email in use',
+        title: "Register User - Email in use",
         parameters: [
-          { name: 'Request params:', value: user },
-          { name: 'Existing user:', value: existingUser }
-        ]
+          { name: "Request params:", value: user },
+          { name: "Existing user:", value: existingUser },
+        ],
       });
-      response = { status: 422, message: 'Email is in use' };
+      response = { status: 422, message: "Email is in use" };
       return response;
     }
 
@@ -78,13 +84,13 @@ const registerUser = async (user) => {
 
     try {
       const newUser = await new User({
-        provider: 'local',
+        provider: "local",
         email,
         password,
         username,
         name,
         avatar: null,
-        role: isFirstRegisteredUser ? 'ADMIN' : 'USER'
+        role: isFirstRegisteredUser ? "ADMIN" : "USER",
       });
 
       // todo: implement refresh token
@@ -100,7 +106,7 @@ const registerUser = async (user) => {
           newUser.save();
         });
       });
-      console.log('newUser', newUser);
+      console.log("newUser", newUser);
       if (isFirstRegisteredUser) {
         migrateDataToFirstUser(newUser);
         // console.log(migrate);
@@ -120,66 +126,70 @@ const registerUser = async (user) => {
 const requestPasswordReset = async (email) => {
   const user = await User.findOne({ email });
   if (!user) {
-    return new Error('Email does not exist');
+    return new Error("Email does not exist");
   }
 
   let token = await Token.findOne({ userId: user._id });
   if (token) await token.deleteOne();
 
-  let resetToken = crypto.randomBytes(32).toString('hex');
+  let resetToken = crypto.randomBytes(32).toString("hex");
   const hash = await bcrypt.hash(resetToken, 10);
 
   await new Token({
     userId: user._id,
     token: hash,
-    createdAt: Date.now()
+    createdAt: Date.now(),
   }).save();
 
   const link = `${clientUrl}/reset-password?token=${resetToken}&userId=${user._id}`;
 
   sendEmail(
     user.email,
-    'Password Reset Request',
+    "Password Reset Request",
     {
       name: user.name,
-      link: link
+      link: link,
     },
-    './template/requestResetPassword.handlebars'
+    "./emails/requestPasswordReset.handlebars"
   );
-  return { link };
+  return { message: "Password reset link was sent" };
 };
 
 const resetPassword = async (userId, token, password) => {
   let passwordResetToken = await Token.findOne({ userId });
 
   if (!passwordResetToken) {
-    return new Error('Invalid or expired password reset token');
+    return new Error("Invalid or expired password reset token");
   }
 
   const isValid = await bcrypt.compare(token, passwordResetToken.token);
 
   if (!isValid) {
-    return new Error('Invalid or expired password reset token');
+    return new Error("Invalid or expired password reset token");
   }
 
   const hash = await bcrypt.hash(password, 10);
 
-  await User.updateOne({ _id: userId }, { $set: { password: hash } }, { new: true });
+  await User.updateOne(
+    { _id: userId },
+    { $set: { password: hash } },
+    { new: true }
+  );
 
   const user = await User.findById({ _id: userId });
 
   sendEmail(
     user.email,
-    'Password Reset Successfnodeully',
+    "Password Reset Successfnodeully",
     {
-      name: user.name
+      name: user.name,
     },
-    './template/resetPassword.handlebars'
+    "./emails/passwordReset.handlebars"
   );
 
   await passwordResetToken.deleteOne();
 
-  return { message: 'Password reset was successful' };
+  return { message: "Password reset was successful" };
 };
 
 module.exports = {
@@ -188,5 +198,5 @@ module.exports = {
   loginUser,
   logoutUser,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
 };

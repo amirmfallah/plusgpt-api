@@ -1,23 +1,25 @@
-const { getSubscription, updateSubscription } = require('../../models');
-const { getProductById } = require('../../models/Product');
+const { getSubscription, updateSubscription } = require("../../models");
+const { getProductById } = require("../../models/Product");
 const {
   saveSubscription,
   updateSubscriptionById,
-  getSubscriptions
-} = require('../../models/Subscription');
-const { getToken } = require('./payment.service');
+  getSubscriptions,
+} = require("../../models/Subscription");
+const { getToken } = require("./payment.service");
 
 module.exports = {
   buySubscription: async (user, planId) => {
     const plan = await getProductById(planId);
     if (plan.price == 0) {
-      const activationCount = (await getSubscriptions({ user, product: planId })).length;
+      const activationCount = (
+        await getSubscriptions({ user, product: planId })
+      ).length;
       if (activationCount >= plan.metadata?.activation_allowed) {
         throw new Error(`Plan activation limit reached`);
       }
       await saveSubscription(user, planId, { free: true }, 0, true);
       return {
-        uri: '/'
+        uri: "/",
       };
     }
 
@@ -26,8 +28,8 @@ module.exports = {
 
     await updateSubscriptionById(sub._id.toString(), {
       invoice: {
-        trans_id: payment.trans_id
-      }
+        trans_id: payment.trans_id,
+      },
     });
 
     return payment;
@@ -35,11 +37,11 @@ module.exports = {
   hasActiveSubscription: async (user) => {
     const sub = await getSubscription({
       user: user,
-      active: true
+      active: true,
     });
 
     if (!sub) {
-      throw new Error('no_subscription');
+      throw new Error("no_subscription");
     }
 
     if (sub.product.amount - sub.current_usage <= 0) {
@@ -51,18 +53,16 @@ module.exports = {
   getActiveSubscription: async (user) => {
     const sub = await getSubscription({
       user: user,
-      active: true
+      active: true,
     });
     return sub;
   },
   incUsage: async (user) => {
-    console.log(
-      await updateSubscription(
-        { user, active: true },
-        {
-          $inc: { current_usage: 1 }
-        }
-      )
+    await updateSubscription(
+      { user, active: true },
+      {
+        $inc: { current_usage: 1 },
+      }
     );
-  }
+  },
 };
