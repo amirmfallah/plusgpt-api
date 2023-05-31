@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema(
     username: {
       type: String,
       lowercase: true,
-      required: [true, "can't be blank"],
+      required: [false, "can't be blank"],
       match: [/^[a-zA-Z0-9_]+$/, "is invalid"],
       index: true,
     },
@@ -185,9 +185,11 @@ module.exports.validateUser = (user) => {
     username: Joi.string()
       .min(2)
       .max(80)
-      .regex(/^[a-zA-Z0-9_]+$/)
-      .required(),
+      .regex(/^[a-zA-Z0-9_]+$/),
     password: Joi.string().min(8).max(60).allow("").allow(null),
+    phone: Joi.string()
+      .length(11)
+      .regex(/^09\d{9}$/).required,
   };
 
   return schema.validate(user);

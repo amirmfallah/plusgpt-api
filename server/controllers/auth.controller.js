@@ -184,10 +184,10 @@ const requestOtpController = async (req, res, next) => {
     }
     const code = generateOTP(5);
     const otp = await newOTP(req.user?.phone, code);
-    await sendSMS(req.user?.phone, "./sms/verification.handlebars", {
-      name: req.user?.name,
-      code: code,
-    });
+    // await sendSMS(req.user?.phone, "./sms/verification.handlebars", {
+    //   name: req.user?.name,
+    //   code: code,
+    // });
     if (otp) {
       res.status(200).send({});
     } else {
