@@ -8,7 +8,8 @@ const {
 } = require("../services/auth.service");
 const { getActiveSubscription } = require("../services/subscription.service");
 const generateOTP = require("../../utils/generateOTP");
-const { newOTP, verifyOTP } = require("../../models");
+const { newOTP, verifyOTP, pendingOTP } = require("../../models");
+const sendSMS = require("../../utils/sendSMS");
 const isProduction = process.env.NODE_ENV === "production";
 
 const loginController = async (req, res) => {
@@ -16,11 +17,11 @@ const loginController = async (req, res) => {
     const token = req.user.generateToken();
     const user = await loginUser(req.user);
     if (user) {
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
-        httpOnly: false,
-        secure: isProduction,
-      });
+      // res.cookie("token", token, {
+      //   expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
+      //   httpOnly: false,
+      //   secure: isProduction,
+      // });
       res.status(200).send({ token, user });
     } else {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -39,8 +40,8 @@ const logoutController = async (req, res) => {
     console.log(logout);
     const { status, message } = logout;
     if (status === 200) {
-      res.clearCookie("token");
-      res.clearCookie("refreshToken");
+      // res.clearCookie("token");
+      // res.clearCookie("refreshToken");
       res.status(status).send({ message });
     } else {
       res.status(status).send({ message });
@@ -58,12 +59,12 @@ const registrationController = async (req, res) => {
       const { status, user } = response;
       const token = user.generateToken();
       //send token for automatic login
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
-        httpOnly: false,
-        secure: isProduction,
-      });
-      res.status(status).send({ user });
+      // res.cookie("token", token, {
+      //   expires: new Date(Date.now() + eval(process.env.SESSION_EXPIRY)),
+      //   httpOnly: false,
+      //   secure: isProduction,
+      // });
+      res.status(status).send({ user, token });
     } else {
       const { status, message } = response;
       res.status(status).send({ message });
@@ -177,10 +178,18 @@ const refreshController = async (req, res, next) => {
 
 const requestOtpController = async (req, res, next) => {
   try {
+    if (await pendingOTP(req.user?.phone)) {
+      res.status(400).json({ message: "pending otp" });
+      return;
+    }
     const code = generateOTP(5);
-    const otp = await newOTP(req.body?.phone, code);
+    const otp = await newOTP(req.user?.phone, code);
+    await sendSMS(req.user?.phone, "./sms/verification.handlebars", {
+      name: req.user?.name,
+      code: code,
+    });
     if (otp) {
-      res.status(200).send(otp);
+      res.status(200).send({});
     } else {
       return res.status(400).json({ message: "Invalid phone" });
     }
@@ -192,10 +201,10 @@ const requestOtpController = async (req, res, next) => {
 
 const verifyOtpController = async (req, res, next) => {
   try {
-    const otp = await verifyOTP(req.body?.phone, req.body?.code);
+    const otp = await verifyOTP(req.user?.phone, req.body?.code);
     if (otp) {
+      await verifyUserPhone(req.user?.phone);
       res.status(200).send(otp);
-      await verifyUserPhone(req.body?.phone);
     } else {
       return res.status(404).json({ message: "Invalid phone or code" });
     }

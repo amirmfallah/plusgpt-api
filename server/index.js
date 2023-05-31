@@ -14,7 +14,7 @@ const host = process.env.HOST || "localhost";
 const projectPath = path.join(__dirname, "..", "..", "client");
 
 const logger = (req, res, next) => {
-  console.log("RECV <<<", req.method, req.url, req.hostname);
+  console.log("RECV <<<", req.method, req.url, req.hostname, req.body);
   next();
 };
 
@@ -26,12 +26,12 @@ const logger = (req, res, next) => {
 
   const app = express();
   app.use(cors());
-  app.use(logger);
   app.use(errorController);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static(path.join(projectPath, "dist")));
   app.set("trust proxy", 1); // trust first proxy
+  app.use(logger);
 
   // OAUTH
   app.use(passport.initialize());

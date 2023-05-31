@@ -23,7 +23,7 @@ router.post("/refresh", requireJwtAuth, refreshController);
 router.post("/register", registrationController);
 router.post("/requestPasswordReset", resetPasswordRequestController);
 router.post("/resetPassword", resetPasswordController);
-router.post("/otp", requestOtpController);
-router.post("/otp/verify", verifyOtpController);
+router.post("/otp", requireJwtAuth, requestOtpController);
+router.post("/otp/verify", requireJwtAuth, verifyOtpController);
 
 module.exports = router;

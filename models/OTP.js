@@ -32,4 +32,7 @@ module.exports = {
   verifyOTP: async (phone, code) => {
     return await Otp.findOneAndUpdate({ phone, code }, { status: "VERIFIED" });
   },
+  pendingOTP: async (phone) => {
+    return await Otp.findOne({ phone });
+  },
 };

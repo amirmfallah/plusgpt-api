@@ -12,7 +12,7 @@ const {
   deletePresets,
 } = require("./Preset");
 const { getSubscription, updateSubscription } = require("./Subscription");
-const { newOTP, verifyOTP } = require("./OTP");
+const { newOTP, verifyOTP, pendingOTP } = require("./OTP");
 
 module.exports = {
   getMessages,
@@ -34,4 +34,5 @@ module.exports = {
 
   newOTP,
   verifyOTP,
+  pendingOTP,
 };
