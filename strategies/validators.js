@@ -1,7 +1,11 @@
 const Joi = require("joi");
 
 const loginSchema = Joi.object().keys({
-  email: Joi.string().trim().email().required(),
+  phone: Joi.string()
+    .regex(/^09\d{9}$/)
+    .trim()
+    .length(11)
+    .required(),
   password: Joi.string().trim().min(6).max(20).required(),
 });
 
