@@ -153,7 +153,7 @@ const requestPasswordReset = async (email) => {
     },
     "./emails/requestPasswordReset.handlebars"
   );
-  return { message: "Password reset link was sent" };
+  return { message: "Password reset link was sent", link: link };
 };
 
 const resetPassword = async (userId, token, password) => {
