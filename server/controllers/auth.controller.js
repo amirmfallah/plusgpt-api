@@ -4,10 +4,11 @@ const {
   registerUser,
   requestPasswordReset,
   resetPassword,
+  verifyUserPhone,
 } = require("../services/auth.service");
 const { getActiveSubscription } = require("../services/subscription.service");
 const generateOTP = require("../../utils/generateOTP");
-const { newOTP } = require("../../models");
+const { newOTP, verifyOTP } = require("../../models");
 const isProduction = process.env.NODE_ENV === "production";
 
 const loginController = async (req, res) => {
@@ -189,7 +190,20 @@ const requestOtpController = async (req, res, next) => {
   }
 };
 
-const verifyOtpController = async (req, res, next) => {};
+const verifyOtpController = async (req, res, next) => {
+  try {
+    const otp = await verifyOTP(req.body?.phone, req.body?.code);
+    if (otp) {
+      res.status(200).send(otp);
+      await verifyUserPhone(req.body?.phone);
+    } else {
+      return res.status(404).json({ message: "Invalid phone or code" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 module.exports = {
   getUserController,

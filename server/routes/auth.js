@@ -8,6 +8,7 @@ const {
   refreshController,
   registrationController,
   requestOtpController,
+  verifyOtpController,
 } = require("../controllers/auth.controller");
 const requireJwtAuth = require("../../middleware/requireJwtAuth");
 const requireLocalAuth = require("../../middleware/requireLocalAuth");
@@ -23,4 +24,6 @@ router.post("/register", registrationController);
 router.post("/requestPasswordReset", resetPasswordRequestController);
 router.post("/resetPassword", resetPasswordController);
 router.post("/otp", requestOtpController);
+router.post("/otp/verify", verifyOtpController);
+
 module.exports = router;

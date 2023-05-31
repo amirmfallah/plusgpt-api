@@ -62,20 +62,20 @@ const registerUser = async (user) => {
     return response;
   }
 
-  const { email, password, name, username } = user;
+  const { email, password, name, username, phone } = user;
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ phone });
 
     if (existingUser) {
       log({
-        title: "Register User - Email in use",
+        title: "Register User - Phone in use",
         parameters: [
           { name: "Request params:", value: user },
           { name: "Existing user:", value: existingUser },
         ],
       });
-      response = { status: 422, message: "Email is in use" };
+      response = { status: 422, message: "Phone is in use" };
       return response;
     }
 
@@ -86,6 +86,7 @@ const registerUser = async (user) => {
       const newUser = await new User({
         provider: "local",
         email,
+        phone,
         password,
         username,
         name,
@@ -192,6 +193,14 @@ const resetPassword = async (userId, token, password) => {
   return { message: "Password reset was successful" };
 };
 
+verifyUserPhone = async (phone) => {
+  const user = await User.findOneAndUpdate({ phone }, { phoneVerified: true });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return true;
+};
+
 module.exports = {
   // signup,
   registerUser,
@@ -199,4 +208,5 @@ module.exports = {
   logoutUser,
   requestPasswordReset,
   resetPassword,
+  verifyUserPhone,
 };

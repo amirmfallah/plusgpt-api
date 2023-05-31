@@ -112,6 +112,7 @@ userSchema.methods.toJSON = function () {
     avatar: this.avatar,
     role: this.role,
     emailVerified: this.emailVerified,
+    phoneVerified: this.phoneVerified,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
