@@ -24,9 +24,14 @@ const sendEmail = async (email, subject, payload, template) => {
       "utf8"
     );
     const compiledTemplate = handlebars.compile(source);
+
+    const address = {
+      name: "PlusGPT",
+      address: process.env.FROM_EMAIL,
+    };
     const options = () => {
       return {
-        from: process.env.FROM_EMAIL,
+        from: address,
         to: email,
         subject: subject,
         html: compiledTemplate(payload),

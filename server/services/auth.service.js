@@ -146,7 +146,7 @@ const requestPasswordReset = async (email) => {
 
   sendEmail(
     user.email,
-    "Password Reset Request",
+    "PlusGPT | درخواست بازیابی رمز عبور",
     {
       name: user.name,
       link: link,
@@ -181,7 +181,7 @@ const resetPassword = async (userId, token, password) => {
 
   sendEmail(
     user.email,
-    "Password Reset Successfnodeully",
+    "PlusGPT | رمز عبور تغییر یافت.",
     {
       name: user.name,
     },
