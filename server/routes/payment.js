@@ -6,6 +6,7 @@ const { updateSubscriptionById } = require("../../models/Subscription");
 const requireJwtAuth = require("../../middleware/requireJwtAuth");
 const { buySubscription } = require("../services/subscription.service");
 const _ = require("lodash");
+const sendSMS = require("../../utils/sendSMS");
 
 const callbackSchema = Joi.object({
   trans_id: Joi.string().required(),
@@ -25,12 +26,13 @@ router.get("/callback", async (req, res) => {
       active: true,
       invoice: invoice,
     });
-
+    console.log(sub);
     await sendSMS(sub.user.phone, "./sms/receipt.handlebars", {
       name: sub.user.name,
       code: invoice.Shaparak_Ref_Id,
     });
   } catch (e) {
+    console.log(e);
     const code = _.get(e, "data.code") ? _.get(e, "data.code") : "500";
     res.redirect(`https://app.plusgpt.ir/plans/callback?code=${code}`);
     return;
