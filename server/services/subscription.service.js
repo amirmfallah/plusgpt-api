@@ -57,11 +57,11 @@ module.exports = {
     });
     return sub;
   },
-  incUsage: async (user) => {
+  incUsage: async (user, tokenUsed) => {
     await updateSubscription(
       { user, active: true },
       {
-        $inc: { current_usage: 1 },
+        $inc: { current_usage: 1, current_token_usage: tokenUsed },
       }
     );
   },

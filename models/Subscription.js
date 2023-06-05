@@ -26,6 +26,12 @@ const subSchema = mongoose.Schema(
     current_usage: {
       type: Number,
       required: false,
+      default: 0,
+    },
+    current_token_usage: {
+      type: Number,
+      required: false,
+      default: 0,
     },
     active: {
       type: Boolean,
@@ -39,13 +45,12 @@ const Subscription =
   mongoose.models.Subscription || mongoose.model("Subscription", subSchema);
 
 module.exports = {
-  saveSubscription: async (user, product, invoice, current_usage, active) => {
+  saveSubscription: async (user, product, invoice, active) => {
     try {
       return await Subscription.create({
         user,
         product,
         invoice,
-        current_usage,
         active,
       });
     } catch (error) {

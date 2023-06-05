@@ -83,6 +83,7 @@ const getUserController = async (req, res) => {
       active: true,
       limit: activePlan.product.amount,
       used: activePlan.current_usage,
+      token_used: activePlan.current_token_usage,
     };
   } else {
     user["plan"] = {
