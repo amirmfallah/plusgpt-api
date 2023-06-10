@@ -10,7 +10,7 @@ const passport = require("passport");
 const axios = require("axios");
 
 const port = process.env.PORT || 3080;
-const host = process.env.HOST || "localhost";
+const host = process.env.HOST || "0.0.0.0";
 const projectPath = path.join(__dirname, "..", "..", "client");
 
 const logger = (req, res, next) => {
@@ -32,6 +32,7 @@ const logger = (req, res, next) => {
   app.use(express.static(path.join(projectPath, "dist")));
   app.set("trust proxy", 1); // trust first proxy
   app.use(logger);
+  require("../app/testPDF");
 
   // OAUTH
   app.use(passport.initialize());
@@ -56,6 +57,8 @@ const logger = (req, res, next) => {
   app.use("/api/endpoints", routes.endpoints);
   app.use("/api/payment", routes.payment);
   app.use("/api/products", routes.products);
+  app.use("/api/s3", routes.s3);
+  app.use("/api/files", routes.files);
 
   // static files
   app.get("/*", function (req, res) {
