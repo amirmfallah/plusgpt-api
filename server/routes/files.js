@@ -40,7 +40,6 @@ router.post("/process", requireJwtAuth, async (req, res) => {
     var chunks = [];
 
     chunks.push(filePrompt.startPrompt(chunks_count + 1));
-
     for (let i = 0; i <= chunks_count; i++) {
       const end = Math.min((i + 1) * PROMPT_LIMIT, body.length - 1);
       const slice = body.slice(i * PROMPT_LIMIT, end);
@@ -49,8 +48,24 @@ router.post("/process", requireJwtAuth, async (req, res) => {
         chunks.push(filePrompt.endPrompt(chunks_count + 1, slice));
         continue;
       }
-
       chunks.push(filePrompt.midPrompt(i, chunks_count + 1, slice));
+    }
+
+    const options = { retries: 2, retryIntervalMs: 200 };
+    let conversationId = undefined;
+    let parrentMessageId = undefined;
+    for (let i = 0; i < chunks.length; i++) {
+      const result = await retry(openAi, options, {
+        text: chunks[i],
+        user: req.user.id,
+        endpoint: "openAI",
+        conversationId: conversationId,
+        parentMessageId: parrentMessageId,
+      });
+      console.log("###################");
+      console.log(result);
+      conversationId = result.conversation.conversationId;
+      parrentMessageId = result.responseMessage.newMessageId;
     }
 
     await updateFile(
@@ -61,27 +76,23 @@ router.post("/process", requireJwtAuth, async (req, res) => {
         chars: body.length,
       }
     );
-
-    // const firstPromot = await openAi({
-    //   text: chunks[0],
-    //   user: req.user.id,
-    //   endpoint: "openAI",
-    // });
-    // await openAi({
-    //   text: chunks[i],
-    //   user: req.user.id,
-    //   endpoint: "openAI",
-    //   conversationId: firstPromot.conversation.conversationId,
-    // });
-    // await openAi({
-    //   text: chunks[i],
-    //   user: req.user.id,
-    //   endpoint: "openAI",
-    //   conversationId: firstPromot.conversation.conversationId,
-    // });
   });
 
   res.sendStatus(202);
 });
+
+const retry = async (fn, { retries, retryIntervalMs }, args) => {
+  try {
+    return await fn(args);
+  } catch (error) {
+    if (retries <= 0) {
+      throw error;
+    }
+    await sleep(retryIntervalMs);
+    return retry(fn, { retries: retries - 1, retryIntervalMs });
+  }
+};
+
+const sleep = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = router;
