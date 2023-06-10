@@ -45,13 +45,13 @@ const Subscription =
   mongoose.models.Subscription || mongoose.model("Subscription", subSchema);
 
 module.exports = {
-  saveSubscription: async (user, product, invoice, active) => {
+  saveSubscription: async (user, product, invoice) => {
     try {
       return await Subscription.create({
         user,
         product,
         invoice,
-        active,
+        active: true,
       });
     } catch (error) {
       console.error(error);

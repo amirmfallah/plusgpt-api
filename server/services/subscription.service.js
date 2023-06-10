@@ -17,13 +17,13 @@ module.exports = {
       if (activationCount >= plan.metadata?.activation_allowed) {
         throw new Error(`Plan activation limit reached`);
       }
-      await saveSubscription(user, planId, { free: true }, 0, true);
+      await saveSubscription(user, planId, { free: true });
       return {
         uri: "/",
       };
     }
 
-    const sub = await saveSubscription(user, planId, null, 0, false);
+    const sub = await saveSubscription(user, planId, null);
     const payment = await getToken(sub._id.toString(), plan.price);
 
     await updateSubscriptionById(sub._id.toString(), {
