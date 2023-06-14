@@ -1,36 +1,37 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = mongoose.Schema(
   {
     label: {
       type: String,
-      required: true
+      required: true,
     },
     amount: {
       type: Number,
-      required: true
+      required: true,
     },
     description: {
       type: String,
-      required: false
+      required: false,
     },
     metadata: {
       type: Object,
-      required: false
+      required: false,
     },
     price: {
       type: Number,
-      required: true
+      required: true,
     },
     version: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
 
 module.exports = {
   getProductById: async (id) => {
@@ -38,15 +39,15 @@ module.exports = {
       return await Product.findById(id).exec();
     } catch (error) {
       console.error(error);
-      return { prompt: 'Error getting product' };
+      return { prompt: "Error getting product" };
     }
   },
   getProducts: async (filter) => {
     try {
-      return await Product.find(filter).exec();
+      return await Product.find(filter).sort({ price: "asc" }).exec();
     } catch (error) {
       console.error(error);
-      return { prompt: 'Error getting products' };
+      return { prompt: "Error getting products" };
     }
   },
   saveProduct: async (plan) => {
@@ -54,7 +55,7 @@ module.exports = {
       return await Product.create(plan);
     } catch (error) {
       console.error(error);
-      return { prompt: 'Error saving products' };
+      return { prompt: "Error saving products" };
     }
   },
   delete: async (filter) => {
@@ -62,7 +63,7 @@ module.exports = {
       return await Product.deleteMany(filter);
     } catch (error) {
       console.error(error);
-      return { prompt: 'Error deleting products' };
+      return { prompt: "Error deleting products" };
     }
-  }
+  },
 };
