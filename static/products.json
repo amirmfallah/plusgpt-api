@@ -1,24 +1,24 @@
 [{
   "label": "پایه",
-  "amount": 100,
+  "amount": 250,
   "description": "این پکیج به صورت تعداد پرسش ها است",
   "metadata": null,
-  "price": 1000
+  "price": 62500
 },{
   "label": "دانشجو",
-  "amount": 100,
+  "amount": 750,
   "description": "این پکیج به صورت تعداد پرسش ها است",
   "metadata": null,
-  "price": 100000
+  "price": 155000
 },{
   "label": "حرفه‌ای",
-  "amount": 100,
+  "amount": 1500,
   "description": "این پکیج به صورت تعداد پرسش ها است",
   "metadata": null,
-  "price": 100000
+  "price": 265000
 },{
   "label": "مجانی",
-  "amount": 5,
+  "amount": 10,
   "description": "این پکیج به صورت تعداد پرسش ها است",
   "metadata": {
     "free": true,
