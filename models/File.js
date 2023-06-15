@@ -5,9 +5,18 @@ const fileSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  processed: {
+  conversationId: {
     type: String,
+    required: false,
+  },
+  processed: {
+    type: Boolean,
     required: true,
+  },
+  error: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   chunks: {
     type: Object,
@@ -25,6 +34,9 @@ module.exports = {
   },
   updateFile: async (filter, revision) => {
     return await File.findOneAndUpdate(filter, revision);
+  },
+  getFile: async (filter) => {
+    return await File.findOne(filter);
   },
   File,
 };
