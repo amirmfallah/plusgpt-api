@@ -82,6 +82,7 @@ const getUserController = async (req, res) => {
     user["plan"] = {
       active: true,
       limit: activePlan.product.amount,
+      limitToken: activePlan.product.amountToken,
       used: activePlan.current_usage,
       token_used: activePlan.current_token_usage,
     };
@@ -90,6 +91,8 @@ const getUserController = async (req, res) => {
       active: false,
       limit: 0,
       used: 0,
+      limitToken: 0,
+      token_used: 0,
     };
   }
   return res.status(200).send(user);

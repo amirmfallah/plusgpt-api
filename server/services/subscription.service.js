@@ -47,7 +47,10 @@ module.exports = {
       throw new Error("no_subscription");
     }
 
-    if (sub.product.amount - sub.current_usage <= 0) {
+    if (
+      sub.product.amount - sub.current_usage <= 0 ||
+      sub.product.amountToken - sub.current_token_usage <= 0
+    ) {
       await updateSubscription({ user, active: true }, { active: false });
       return false;
     }

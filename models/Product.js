@@ -8,7 +8,11 @@ const productSchema = mongoose.Schema(
     },
     amount: {
       type: Number,
-      required: true,
+      required: false,
+    },
+    amountToken: {
+      type: Number,
+      required: false,
     },
     description: {
       type: String,
