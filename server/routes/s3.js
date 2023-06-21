@@ -24,9 +24,10 @@ router.post("/sign_url", requireJwtAuth, async (req, res) => {
   }
 
   try {
+    const user = req?.user?._id.toString();
     key = `${crypto.randomUUID()}.pdf`;
     const value = await urlSchema.validateAsync(req.body);
-    const url = await s3Service.getUploadURL(value.contentType, key);
+    const url = await s3Service.getUploadURL(value.contentType, key, user);
     res.send(url).status(200);
     return;
   } catch (e) {
