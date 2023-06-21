@@ -51,7 +51,7 @@ module.exports = {
         user,
         product,
         invoice,
-        active: true,
+        active: false,
       });
     } catch (error) {
       console.error(error);
