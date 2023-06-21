@@ -47,8 +47,7 @@ router.post("/buy", requireJwtAuth, async (req, res) => {
     const uri = await buySubscription(user, value.product_id);
     res.status(200).json(uri);
   } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
+    res.status(500).send({ message: e.message });
   }
 });
 
