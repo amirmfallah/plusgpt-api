@@ -21,7 +21,7 @@ module.exports = {
       Expires: URL_EXPIRATION_SECONDS,
       ContentType: contentType,
       Conditions: [
-        ["content-length-range", 0, 1 * 1024 * 1024],
+        ["content-length-range", 0, 50 * 1024 * 1024],
         ["eq", "$Content-Type", contentType],
         ["eq", "$x-amz-meta-userid", userId],
       ],

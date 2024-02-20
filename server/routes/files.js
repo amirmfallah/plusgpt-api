@@ -10,7 +10,7 @@ const requireJwtAuth = require("../../middleware/requireJwtAuth");
 const openAi = require("../services/openAI.service");
 const rsjx = require("rxjs");
 const { getFile } = require("../../models/File");
-const PROMPT_LIMIT = 10000;
+const PROMPT_LIMIT = 9000;
 
 const urlSchema = Joi.object({
   contentType: Joi.string().required(),
@@ -79,8 +79,7 @@ router.post("/process", requireJwtAuth, async (req, res) => {
           }
           chunks.push(filePrompt.midPrompt(i, chunks_count + 1, slice));
         }
-
-        const options = { retries: 2, retryIntervalMs: 5000 };
+        const options = { retries: 2, retryIntervalMs: 20000 };
         let conversationId = undefined;
         let parrentMessageId = undefined;
 
@@ -130,16 +129,25 @@ router.post("/process", requireJwtAuth, async (req, res) => {
 
 const retry = async (fn, { retries, retryIntervalMs }, args) => {
   try {
-    return await fn(args);
+    console.log("sending req");
+    const data = await fn(args);
+    return data;
   } catch (error) {
+    console.log("error req");
     if (retries <= 0) {
       throw error;
     }
-    await sleep(retryIntervalMs);
-    return retry(fn, { retries: retries - 1, retryIntervalMs });
+    console.log("waiting");
+    await waitFor(20000);
+    return retry(fn, { retries: retries - 1, retryIntervalMs }, args);
   }
 };
 
-const sleep = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
-
+function waitFor(millSeconds) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, millSeconds);
+  });
+}
 module.exports = router;

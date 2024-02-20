@@ -55,11 +55,11 @@ module.exports = async (params) => {
   )
     throw new Error({ text: "Illegal request: model" });
 
-  console.log("ask log", {
-    userMessage,
-    endpointOption,
-    conversationId,
-  });
+  // console.log("ask log", {
+  //   userMessage,
+  //   endpointOption,
+  //   conversationId,
+  // });
 
   if (!overrideParentMessageId) {
     await saveMessage(userMessage);
@@ -224,6 +224,6 @@ const ask = async ({
       text: error.message,
     };
     await saveMessage(errorMessage);
-    return errorMessage;
+    throw error;
   }
 };
